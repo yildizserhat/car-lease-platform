@@ -5,6 +5,7 @@ import com.yildiz.serhat.carleaseplatform.domain.entity.Car;
 import com.yildiz.serhat.carleaseplatform.service.CarService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +23,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/cars")
 @RequiredArgsConstructor
-@Tag(name = "car", description = "Endpoints about cars")
+@Tag(name = "Car", description = "Endpoints about cars")
 public class CarController {
 
     private final CarService carService;
 
     @PostMapping
-    @Operation(summary = "Get Car By id")
-    public ResponseEntity<?> createCar(@RequestBody CarRequestDTO request) {
+    @Operation(summary = "Create Car By id")
+    public ResponseEntity<?> createCar(@RequestBody @Valid CarRequestDTO request) {
         carService.createCar(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -55,7 +56,7 @@ public class CarController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update Car By id")
-    public ResponseEntity<Car> updateCarById(@PathVariable("id") Long id, @RequestBody CarRequestDTO request) {
+    public ResponseEntity<Car> updateCarById(@PathVariable("id") Long id, @RequestBody @Valid CarRequestDTO request) {
         return new ResponseEntity<>(carService.updateCarById(id, request), HttpStatus.OK);
     }
 }

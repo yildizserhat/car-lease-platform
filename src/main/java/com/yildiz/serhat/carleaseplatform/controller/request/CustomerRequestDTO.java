@@ -1,10 +1,22 @@
 package com.yildiz.serhat.carleaseplatform.controller.request;
 
-public record CustomerRequestDTO(String name,
-                                 String street,
-                                 String houseNumber,
-                                 String zipCode,
-                                 String place,
-                                 String email,
-                                 String phoneNumber) {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+
+public record CustomerRequestDTO(
+        @NotNull
+        String name,
+        @NotNull
+        String street,
+        @NotNull
+        String houseNumber,
+        @NotNull
+        String zipCode,
+        @NotNull
+        String place,
+        @NotNull
+        @Email
+        String email,
+        @NotNull
+        String phoneNumber) {
 }

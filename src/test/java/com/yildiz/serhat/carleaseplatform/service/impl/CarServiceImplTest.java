@@ -40,6 +40,7 @@ class CarServiceImplTest {
         carService.createCar(carRequestDTO);
 
         verify(customerService, atLeastOnce()).getCustomerById(3L);
+        verify(repository,atLeastOnce()).save(any());
     }
 
     @Test
@@ -63,12 +64,26 @@ class CarServiceImplTest {
     }
 
     @Test
-    public void shouldUpdateCar(){
+    public void shouldUpdateCar() {
+        CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
+                new BigDecimal(50000), new BigDecimal(45000), "3", new LeaseRateRequestDTO(new BigDecimal(40000), 10, 4.5));
+        when(repository.findById(1L)).thenReturn(Optional.of(Car.builder().id(1L).build()));
+        when(repository.save(any())).thenReturn(Car.buildCarFromRequest(carRequestDTO));
+        Car car = carService.updateCarById(1L, carRequestDTO);
 
+        assertEquals(car.getModel(), "BMW");
+        assertEquals(car.getMake(), "make");
+        assertEquals(car.getVersion(), "320i");
+        assertEquals(car.getLeaseRate().getMileAge(), new BigDecimal(40000));
     }
 
     @Test
-    public void shouldDeleteCar(){
+    public void shouldDeleteCar() {
+        when(repository.findById(1L)).thenReturn(Optional.of(Car.builder().id(1L).build()));
+
+        carService.deleteCarById(1L);
+
+        verify(repository, atLeastOnce()).deleteById(1L);
 
     }
 

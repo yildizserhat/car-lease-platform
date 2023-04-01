@@ -20,6 +20,9 @@ import net.minidev.json.annotate.JsonIgnore;
 
 import java.math.BigDecimal;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 @Getter
 @Setter
 @Entity
@@ -86,6 +89,21 @@ public class Car extends BaseEntity {
         car.setNettPrice(requestDTO.nettPrice());
         car.setNumberOfDoors(requestDTO.numberOfDoors());
         car.setVersion(requestDTO.version());
+
+        if (nonNull(car.getLeaseRate())) {
+            car.getLeaseRate().setMileAge(requestDTO.leaseRate().mileAge());
+            car.getLeaseRate().setDuration(requestDTO.leaseRate().duration());
+            car.getLeaseRate().setInterestRate(requestDTO.leaseRate().interestRate());
+        }
+
+        if (isNull(car.getLeaseRate())) {
+            LeaseRate rate = LeaseRate.builder()
+                    .mileAge(requestDTO.leaseRate().mileAge())
+                    .duration(requestDTO.leaseRate().duration())
+                    .interestRate(requestDTO.leaseRate().interestRate())
+                    .build();
+            car.setLeaseRate(rate);
+        }
         return car;
     }
 }

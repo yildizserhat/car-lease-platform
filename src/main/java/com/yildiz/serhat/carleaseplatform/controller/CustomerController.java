@@ -5,6 +5,7 @@ import com.yildiz.serhat.carleaseplatform.domain.entity.Customer;
 import com.yildiz.serhat.carleaseplatform.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,21 +23,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/customers")
 @RequiredArgsConstructor
-@Tag(name = "customer", description = "Endpoints about customers")
+@Tag(name = "Customer", description = "Endpoints about customers")
 public class CustomerController {
 
     private final CustomerService customerService;
 
     @PostMapping
-    @Operation(summary = "Get Customer By id")
-    public ResponseEntity<?> createCustomer(@RequestBody CustomerRequestDTO request) {
+    @Operation(summary = "Create Customer")
+    public ResponseEntity<?> createCustomer(@RequestBody @Valid CustomerRequestDTO request) {
         customerService.createCustomer(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping
     @Operation(summary = "Get All Customer")
-    public ResponseEntity<List<Customer>> getAllCustomers(@PathVariable("id") Long id) {
+    public ResponseEntity<List<Customer>> getAllCustomers() {
         return new ResponseEntity<>(customerService.getAllCustomers(), HttpStatus.OK);
     }
 
@@ -55,7 +56,7 @@ public class CustomerController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update Customer By id")
-    public ResponseEntity<Customer> updateCustomerById(@PathVariable("id") Long id, @RequestBody CustomerRequestDTO request) {
+    public ResponseEntity<Customer> updateCustomerById(@PathVariable("id") Long id, @RequestBody @Valid CustomerRequestDTO request) {
         return new ResponseEntity<>(customerService.updateCustomerById(id, request), HttpStatus.OK);
     }
 }

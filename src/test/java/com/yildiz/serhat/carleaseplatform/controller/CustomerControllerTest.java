@@ -1,9 +1,15 @@
 package com.yildiz.serhat.carleaseplatform.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yildiz.serhat.carleaseplatform.controller.request.AuthenticationRequest;
 import com.yildiz.serhat.carleaseplatform.controller.request.CustomerRequestDTO;
+import com.yildiz.serhat.carleaseplatform.controller.request.RegisterRequest;
+import com.yildiz.serhat.carleaseplatform.controller.response.AuthenticationResponse;
 import com.yildiz.serhat.carleaseplatform.domain.entity.Customer;
+import com.yildiz.serhat.carleaseplatform.domain.entity.Token;
 import com.yildiz.serhat.carleaseplatform.repository.CustomerRepository;
+import com.yildiz.serhat.carleaseplatform.repository.TokenRepository;
+import com.yildiz.serhat.carleaseplatform.repository.UserRepository;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
@@ -42,15 +49,24 @@ class CustomerControllerTest {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
 
     @BeforeEach
     public void setUp() {
+
 
         objectMapper.setVisibility(FIELD, ANY);
     }
 
     @AfterEach
     public void tearDown() {
+        tokenRepository.deleteAll();
+        userRepository.deleteAll();
         customerRepository.deleteAll();
     }
 
@@ -61,6 +77,7 @@ class CustomerControllerTest {
         mockMvc.perform(post("/v1/customers")
                         .with(httpBasic("admin", "admin"))
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + getToken())
                         .content(objectMapper.writeValueAsString(customerRequestDTO)))
                 .andExpect(status().isCreated());
 
@@ -82,8 +99,10 @@ class CustomerControllerTest {
         customerRepository.save(customer);
 
         mockMvc.perform(get("/v1/customers/4")
+                        .header("Authorization", "Bearer " + getToken())
                         .with(httpBasic("serhat", "admin"))
                         .contentType(MediaType.APPLICATION_JSON))
+
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.fullName").value("Serhat Yildiz"))
                 .andExpect(jsonPath("$.street").value("Street"))
@@ -100,11 +119,40 @@ class CustomerControllerTest {
         customerRepository.save(customer);
 
         mockMvc.perform(delete("/v1/customers/6")
+                        .header("Authorization", "Bearer " + getToken())
                         .with(httpBasic("admin", "admin"))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         List<Customer> all = customerRepository.findAll();
         assertEquals(all.size(), 0);
+    }
+
+    @SneakyThrows
+    private String getToken() {
+        String token;
+        RegisterRequest request = new RegisterRequest("serhat", "yildiz", "yildiz_serhat@hotmail.com", "1234567");
+
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest("yildiz_serhat@hotmail.com", "1234567");
+        // Register and Authenticate
+        MvcResult mvcResult = mockMvc.perform(post("/api/v1/auth/register")
+                        .with(httpBasic("admin", "admin"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk()).andReturn();
+
+        AuthenticationResponse someClass = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), AuthenticationResponse.class);
+
+
+        MvcResult mvcResult1 = mockMvc.perform(post("/api/v1/auth/authenticate")
+                        .with(httpBasic("admin", "admin"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + someClass.getToken())
+                        .content(objectMapper.writeValueAsString(authenticationRequest)))
+                .andExpect(status().isOk()).andReturn();
+
+        AuthenticationResponse someClasss = new ObjectMapper().readValue(mvcResult1.getResponse().getContentAsString(), AuthenticationResponse.class);
+        token = someClasss.getToken();
+        return token;
     }
 }
