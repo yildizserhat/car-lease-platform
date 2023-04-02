@@ -1,5 +1,6 @@
 package com.yildiz.serhat.carleaseplatform.domain.entity;
 
+import com.yildiz.serhat.carleaseplatform.domain.TokenType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

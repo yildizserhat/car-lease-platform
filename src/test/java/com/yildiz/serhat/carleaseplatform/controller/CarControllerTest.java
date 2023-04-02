@@ -1,17 +1,10 @@
 package com.yildiz.serhat.carleaseplatform.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yildiz.serhat.carleaseplatform.controller.request.AuthenticationRequest;
 import com.yildiz.serhat.carleaseplatform.controller.request.CarRequestDTO;
 import com.yildiz.serhat.carleaseplatform.controller.request.LeaseRateRequestDTO;
-import com.yildiz.serhat.carleaseplatform.controller.request.RegisterRequest;
-import com.yildiz.serhat.carleaseplatform.controller.response.AuthenticationResponse;
 import com.yildiz.serhat.carleaseplatform.domain.entity.Car;
 import com.yildiz.serhat.carleaseplatform.domain.entity.Customer;
-import com.yildiz.serhat.carleaseplatform.domain.entity.Role;
-import com.yildiz.serhat.carleaseplatform.domain.entity.Token;
-import com.yildiz.serhat.carleaseplatform.domain.entity.TokenType;
-import com.yildiz.serhat.carleaseplatform.domain.entity.User;
 import com.yildiz.serhat.carleaseplatform.repository.CarRepository;
 import com.yildiz.serhat.carleaseplatform.repository.CustomerRepository;
 import com.yildiz.serhat.carleaseplatform.repository.TokenRepository;
@@ -25,9 +18,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -44,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
 class CarControllerTest {
 
@@ -59,10 +55,10 @@ class CarControllerTest {
     @Autowired
     private CarRepository carRepository;
 
-    @Autowired
+    @MockBean
     private TokenRepository tokenRepository;
 
-    @Autowired
+    @MockBean
     private UserRepository userRepository;
 
     private String token = "";
@@ -71,28 +67,6 @@ class CarControllerTest {
     @BeforeEach
     @SneakyThrows
     public void setUp() {
-        token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ5aWxkaXpfc2VyaGF0QGhvdG1haWwuY29tIiwiaWF0IjoxNjgwMzYyNTYyLCJleHAiOjE2ODAzNjQwMDJ9.96VeWbIqMYGE3mB8JV-lmACbqlBx5iRQd277mmD7QYM";
-        User build = User.builder()
-                .firstname("Serhat")
-                .lastname("yildiz")
-                .role(Role.USER)
-                .password("123456")
-                .email("email@email.com")
-                .build();
-
-        Token build1 = Token.builder()
-                .user(build)
-                .expired(false)
-                .revoked(false)
-                .tokenType(TokenType.BEARER)
-                .token(token)
-                .build();
-
-        build.setTokens(List.of(build1));
-        userRepository.save(build);
-        tokenRepository.save(build1);
-
-
 
         Customer customer = Customer.builder()
                 .id(1L)
@@ -118,15 +92,14 @@ class CarControllerTest {
     }
 
     @Test
+    @WithMockUser
     @SneakyThrows
     public void shouldCreateNewCar() {
-
         CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
                 new BigDecimal(50000), new BigDecimal(45000), "1", new LeaseRateRequestDTO(new BigDecimal(40000), 10, 4.5));
         mockMvc.perform(post("/v1/cars")
-                        .with(httpBasic("admin", "admin"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
+                        // .header("Authorization", "Bearer " + "token")
                         .content(objectMapper.writeValueAsString(carRequestDTO)))
                 .andExpect(status().isCreated());
 
@@ -142,6 +115,7 @@ class CarControllerTest {
     }
 
     @Test
+    @WithMockUser
     @SneakyThrows
     public void shouldGetCar() {
         CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
@@ -154,7 +128,6 @@ class CarControllerTest {
 
         mockMvc.perform(get("/v1/cars/1")
                         .with(httpBasic("serhat", "admin"))
-                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.make").value("make"))
@@ -166,19 +139,18 @@ class CarControllerTest {
     }
 
     @Test
+    @WithMockUser
     @SneakyThrows
     public void shouldDeleteCar() {
         CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
                 new BigDecimal(50000), new BigDecimal(45000), "1", new LeaseRateRequestDTO(new BigDecimal(40000), 10, 4.5));
 
         Car car = Car.buildCarFromRequest(carRequestDTO);
-        car.setId(2L);
         car.getLeaseRate().setLeaseRate(new BigDecimal(169.75));
         carRepository.save(car);
 
-        mockMvc.perform(delete("/v1/cars/2")
+        mockMvc.perform(delete("/v1/cars/1")
                         .with(httpBasic("admin", "admin"))
-                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -186,33 +158,4 @@ class CarControllerTest {
 
         assertEquals(all.size(), 0);
     }
-
-    @SneakyThrows
-    private String getToken() {
-        String token;
-        RegisterRequest request = new RegisterRequest("serhat", "yildiz", "yildiz_serhat@hotmail.com", "1234567");
-
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest("yildiz_serhat@hotmail.com", "1234567");
-        // Register and Authenticate
-        MvcResult mvcResult = mockMvc.perform(post("/api/v1/auth/register")
-                        .with(httpBasic("admin", "admin"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk()).andReturn();
-
-        AuthenticationResponse someClass = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), AuthenticationResponse.class);
-
-
-        MvcResult mvcResult1 = mockMvc.perform(post("/api/v1/auth/authenticate")
-                        .with(httpBasic("admin", "admin"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + someClass.getToken())
-                        .content(objectMapper.writeValueAsString(authenticationRequest)))
-                .andExpect(status().isOk()).andReturn();
-
-        AuthenticationResponse someClasss = new ObjectMapper().readValue(mvcResult1.getResponse().getContentAsString(), AuthenticationResponse.class);
-        token = someClasss.getToken();
-        return token;
-    }
-
 }

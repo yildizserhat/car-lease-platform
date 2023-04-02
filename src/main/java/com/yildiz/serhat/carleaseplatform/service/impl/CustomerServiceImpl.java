@@ -22,7 +22,7 @@ public class CustomerServiceImpl implements CustomerService {
     public void createCustomer(CustomerRequestDTO request) {
         Customer customer = Customer.buildCustomerFromRequest(request);
         Customer savedCustomer = repository.save(customer);
-        log.info("Customer saved with email: {} and Id: {}", savedCustomer.getId(), savedCustomer.getEmail());
+        log.info("Customer saved with id: {} and email: {}", savedCustomer.getId(), savedCustomer.getEmail());
     }
 
     @Override
