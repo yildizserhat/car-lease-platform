@@ -54,5 +54,5 @@ In order to use the API, you should get JWT token. First, you should call regist
 
 - Add/Update/Delete Customer 
 - Add/Update/Delete Car
-- Calculate Lease Rate.
+- Calculate Lease Rate when saving/updating the car.
 
