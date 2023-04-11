@@ -30,7 +30,7 @@ public class CarController {
 
     @PostMapping
     @Operation(summary = "Create Car By id")
-    public ResponseEntity<?> createCar(@RequestBody @Valid CarRequestDTO request) {
+    public ResponseEntity<Void> createCar(@RequestBody @Valid CarRequestDTO request) {
         carService.createCar(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -49,7 +49,7 @@ public class CarController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Car By id")
-    public ResponseEntity<?> deleteCarById(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteCarById(@PathVariable("id") Long id) {
         carService.deleteCarById(id);
         return ResponseEntity.ok().build();
     }

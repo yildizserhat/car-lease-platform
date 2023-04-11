@@ -45,7 +45,7 @@ public class LeaseRate extends BaseEntity {
 
     @NotNull
     @Column(name = "lease_rate", nullable = false)
-    private BigDecimal leaseRate;
+    private BigDecimal leaseRateAmount;
 
     @OneToOne
     @JsonIgnore

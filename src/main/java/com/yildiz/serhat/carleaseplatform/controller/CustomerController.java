@@ -30,7 +30,7 @@ public class CustomerController {
 
     @PostMapping
     @Operation(summary = "Create Customer")
-    public ResponseEntity<?> createCustomer(@RequestBody @Valid CustomerRequestDTO request) {
+    public ResponseEntity<Void> createCustomer(@RequestBody @Valid CustomerRequestDTO request) {
         customerService.createCustomer(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -49,7 +49,7 @@ public class CustomerController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Customer By id")
-    public ResponseEntity<?> deleteCustomerById(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteCustomerById(@PathVariable("id") Long id) {
         customerService.deleteCustomerById(id);
         return ResponseEntity.ok().build();
     }

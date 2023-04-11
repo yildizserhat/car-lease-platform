@@ -10,8 +10,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,7 +66,7 @@ class CustomerControllerTest {
     @Test
     @WithMockUser
     @SneakyThrows
-    public void shouldCreateNewCustomer() {
+    void shouldCreateNewCustomer() {
         CustomerRequestDTO customerRequestDTO = new CustomerRequestDTO("Serhat Yildiz", "street", "44", "1062VS", "Amsterdam", "test@test.com", "650445445");
         mockMvc.perform(post("/v1/customers")
                         .with(httpBasic("admin", "admin"))
@@ -79,17 +77,17 @@ class CustomerControllerTest {
         List<Customer> all = customerRepository.findAll();
         Customer customer = all.get(0);
 
-        assertEquals(customer.getFullName(), "Serhat Yildiz");
-        assertEquals(customer.getStreet(), "street");
-        assertEquals(customer.getHouseNumber(), "44");
-        assertEquals(customer.getEmail(), "test@test.com");
-        assertEquals(customer.getPhoneNumber(), "650445445");
+        assertEquals("Serhat Yildiz", customer.getFullName());
+        assertEquals("street", customer.getStreet());
+        assertEquals("44", customer.getHouseNumber());
+        assertEquals("test@test.com", customer.getEmail());
+        assertEquals("650445445", customer.getPhoneNumber());
     }
 
     @Test
     @WithMockUser
     @SneakyThrows
-    public void shouldGetCustomer() {
+    void shouldGetCustomer() {
         CustomerRequestDTO customerRequestDTO = new CustomerRequestDTO("Serhat Yildiz", "Street", "44", "1062VS", "Amsterdam", "test@test.com", "650445445");
         Customer customer = Customer.buildCustomerFromRequest(customerRequestDTO);
         customerRepository.save(customer);
@@ -108,7 +106,7 @@ class CustomerControllerTest {
     @Test
     @WithMockUser
     @SneakyThrows
-    public void shouldDeleteCustomer() {
+    void shouldDeleteCustomer() {
         CustomerRequestDTO customerRequestDTO = new CustomerRequestDTO("Serhat Yildiz", "street", "44", "1062VS", "Amsterdam", "test@test.com", "650445445");
         Customer customer = Customer.buildCustomerFromRequest(customerRequestDTO);
         customerRepository.save(customer);
@@ -119,6 +117,6 @@ class CustomerControllerTest {
                 .andExpect(status().isOk());
 
         List<Customer> all = customerRepository.findAll();
-        assertEquals(all.size(), 0);
+        assertEquals(0, all.size());
     }
 }

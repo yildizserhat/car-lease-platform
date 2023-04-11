@@ -13,8 +13,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -93,36 +91,35 @@ class CarControllerTest {
     @Test
     @WithMockUser
     @SneakyThrows
-    public void shouldCreateNewCar() {
+    void shouldCreateNewCar() {
         CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
                 new BigDecimal(50000), new BigDecimal(45000), "1", new LeaseRateRequestDTO(new BigDecimal(40000), 10, 4.5));
         mockMvc.perform(post("/v1/cars")
                         .contentType(MediaType.APPLICATION_JSON)
-                        // .header("Authorization", "Bearer " + "token")
                         .content(objectMapper.writeValueAsString(carRequestDTO)))
                 .andExpect(status().isCreated());
 
         List<Car> all = carRepository.findAll();
         Car car = all.get(0);
 
-        assertEquals(car.getModel(), "BMW");
-        assertEquals(car.getVersion(), "320i");
-        assertEquals(car.getLeaseRate().getLeaseRate(), new BigDecimal(169.75));
-        assertEquals(car.getNumberOfDoors(), 4);
-        assertEquals(car.getCustomer().getEmail(), "test@test.com");
-        assertEquals(car.getCustomer().getFullName(), "Serhat Yildiz");
+        assertEquals("BMW", car.getModel());
+        assertEquals("320i", car.getVersion());
+        assertEquals(new BigDecimal(169.75), car.getLeaseRate().getLeaseRateAmount());
+        assertEquals(4, car.getNumberOfDoors());
+        assertEquals("test@test.com", car.getCustomer().getEmail());
+        assertEquals("Serhat Yildiz", car.getCustomer().getFullName());
     }
 
     @Test
     @WithMockUser
     @SneakyThrows
-    public void shouldGetCar() {
+    void shouldGetCar() {
         CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
                 new BigDecimal(50000), new BigDecimal(45000), "1", new LeaseRateRequestDTO(new BigDecimal(40000), 10, 4.5));
 
         Car car = Car.buildCarFromRequest(carRequestDTO);
         car.setId(1L);
-        car.getLeaseRate().setLeaseRate(new BigDecimal(169.75));
+        car.getLeaseRate().setLeaseRateAmount(new BigDecimal(169.75));
         carRepository.save(car);
 
         mockMvc.perform(get("/v1/cars/1")
@@ -140,12 +137,12 @@ class CarControllerTest {
     @Test
     @WithMockUser
     @SneakyThrows
-    public void shouldDeleteCar() {
+    void shouldDeleteCar() {
         CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
                 new BigDecimal(50000), new BigDecimal(45000), "1", new LeaseRateRequestDTO(new BigDecimal(40000), 10, 4.5));
 
         Car car = Car.buildCarFromRequest(carRequestDTO);
-        car.getLeaseRate().setLeaseRate(new BigDecimal(169.75));
+        car.getLeaseRate().setLeaseRateAmount(new BigDecimal(169.75));
         carRepository.save(car);
 
         mockMvc.perform(delete("/v1/cars/1")
@@ -155,6 +152,6 @@ class CarControllerTest {
 
         List<Car> all = carRepository.findAll();
 
-        assertEquals(all.size(), 0);
+        assertEquals(0, all.size());
     }
 }

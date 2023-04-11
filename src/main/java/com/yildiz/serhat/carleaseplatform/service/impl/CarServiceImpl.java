@@ -16,6 +16,8 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
+import static java.math.BigDecimal.*;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class CarServiceImpl implements CarService {
             customer = customerService.getCustomerById(Long.valueOf(request.customerId()));
         }
         BigDecimal leaseRate = calculateLeaseRate(car);
-        car.getLeaseRate().setLeaseRate(leaseRate);
+        car.getLeaseRate().setLeaseRateAmount(leaseRate);
         car.setCustomer(customer);
         Car savedCar = repository.save(car);
         log.info("Lease Rate is calculated as :{} for carId: {}", leaseRate, savedCar.getId());
@@ -68,7 +70,7 @@ public class CarServiceImpl implements CarService {
         Car car = getCar(id);
         Car updatedCar = Car.updateCar(car, request);
         BigDecimal leaseRate = calculateLeaseRate(updatedCar);
-        updatedCar.getLeaseRate().setLeaseRate(leaseRate);
+        updatedCar.getLeaseRate().setLeaseRateAmount(leaseRate);
         log.info("Car is updated with Id: {}", updatedCar.getId());
         return repository.save(updatedCar);
     }
@@ -80,8 +82,8 @@ public class CarServiceImpl implements CarService {
         Double interestRate = car.getLeaseRate().getInterestRate();
         BigDecimal monthOfYear = new BigDecimal(MONTH_OF_YEAR);
 
-        BigDecimal firstDivision = ((mileAge.divide(monthOfYear, RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(duration))).divide(nettPrice, RoundingMode.HALF_UP).setScale(3, RoundingMode.HALF_UP);
-        BigDecimal secondDivision = nettPrice.divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP).multiply(new BigDecimal(interestRate / 100)).setScale(3, RoundingMode.HALF_UP);
+        BigDecimal firstDivision = ((mileAge.divide(monthOfYear, RoundingMode.HALF_UP)).multiply(valueOf(duration))).divide(nettPrice, RoundingMode.HALF_UP).setScale(3, RoundingMode.HALF_UP);
+        BigDecimal secondDivision = nettPrice.divide(valueOf(12), RoundingMode.HALF_UP).multiply(valueOf(interestRate / 100)).setScale(3, RoundingMode.HALF_UP);
 
         return firstDivision.add(secondDivision);
     }

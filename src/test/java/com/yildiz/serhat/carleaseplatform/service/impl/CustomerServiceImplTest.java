@@ -26,7 +26,7 @@ class CustomerServiceImplTest {
     private CustomerRepository repository;
 
     @Test
-    public void shouldCreateCustomer() {
+    void shouldCreateCustomer() {
         CustomerRequestDTO customerRequestDTO = new CustomerRequestDTO("Serhat Yildiz", "street", "44", "1062VS", "Amsterdam", "test@test.com", "650445445");
 
         when(repository.save(any())).thenReturn(Customer.buildCustomerFromRequest(customerRequestDTO));
@@ -37,7 +37,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    public void shouldGetCustomerById() {
+    void shouldGetCustomerById() {
         when(repository.findById(1L)).thenReturn(Optional.of(Customer.builder().id(1L).build()));
 
         Customer customerById = customerService.getCustomerById(1L);
@@ -46,7 +46,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    public void shouldDeleteCustomer() {
+    void shouldDeleteCustomer() {
         when(repository.findById(1L)).thenReturn(Optional.of(Customer.builder().id(1L).build()));
 
         customerService.deleteCustomerById(1L);
@@ -55,7 +55,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    public void shouldUpdateCustomer() {
+    void shouldUpdateCustomer() {
         CustomerRequestDTO customerRequestDTO = new CustomerRequestDTO("Serhat Yildiz", "street", "44", "1062VS", "Amsterdam", "test@test.com", "650445445");
 
         when(repository.findById(1L)).thenReturn(Optional.of(Customer.builder().id(1L).build()));
@@ -63,11 +63,11 @@ class CustomerServiceImplTest {
 
         Customer customer = customerService.updateCustomerById(1L, customerRequestDTO);
 
-        assertEquals(customer.getFullName(), "Serhat Yildiz");
-        assertEquals(customer.getStreet(), "street");
-        assertEquals(customer.getHouseNumber(), "44");
-        assertEquals(customer.getZipCode(), "1062VS");
-        assertEquals(customer.getPlace(), "Amsterdam");
+        assertEquals("Serhat Yildiz", customer.getFullName());
+        assertEquals("street", customer.getStreet());
+        assertEquals("44", customer.getHouseNumber());
+        assertEquals("1062VS", customer.getZipCode());
+        assertEquals("Amsterdam", customer.getPlace());
 
     }
 

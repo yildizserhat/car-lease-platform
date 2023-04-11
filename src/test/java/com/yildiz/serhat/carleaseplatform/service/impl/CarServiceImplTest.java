@@ -32,7 +32,7 @@ class CarServiceImplTest {
     private CarRepository repository;
 
     @Test
-    public void shouldCreateCar() {
+    void shouldCreateCar() {
         CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
                 new BigDecimal(50000), new BigDecimal(45000), "3", new LeaseRateRequestDTO(new BigDecimal(40000), 10, 4.5));
 
@@ -40,11 +40,11 @@ class CarServiceImplTest {
         carService.createCar(carRequestDTO);
 
         verify(customerService, atLeastOnce()).getCustomerById(3L);
-        verify(repository,atLeastOnce()).save(any());
+        verify(repository, atLeastOnce()).save(any());
     }
 
     @Test
-    public void shouldGetAllCarsByCustomer() {
+    void shouldGetAllCarsByCustomer() {
         Customer customer = Customer.builder().id(3L).build();
         when(customerService.getCustomerById(3L)).thenReturn(customer);
         when(repository.findByCustomer(customer)).thenReturn(List.of(Car.builder().customer(customer).build()));
@@ -55,7 +55,7 @@ class CarServiceImplTest {
     }
 
     @Test
-    public void shouldGetCarById() {
+    void shouldGetCarById() {
         when(repository.findById(1L)).thenReturn(Optional.of(Car.builder().id(1L).build()));
 
         Car carById = carService.getCarById(1L);
@@ -64,21 +64,21 @@ class CarServiceImplTest {
     }
 
     @Test
-    public void shouldUpdateCar() {
+    void shouldUpdateCar() {
         CarRequestDTO carRequestDTO = new CarRequestDTO("make", "BMW", "320i", 4, "co2",
                 new BigDecimal(50000), new BigDecimal(45000), "3", new LeaseRateRequestDTO(new BigDecimal(40000), 10, 4.5));
         when(repository.findById(1L)).thenReturn(Optional.of(Car.builder().id(1L).build()));
         when(repository.save(any())).thenReturn(Car.buildCarFromRequest(carRequestDTO));
         Car car = carService.updateCarById(1L, carRequestDTO);
 
-        assertEquals(car.getModel(), "BMW");
-        assertEquals(car.getMake(), "make");
-        assertEquals(car.getVersion(), "320i");
-        assertEquals(car.getLeaseRate().getMileAge(), new BigDecimal(40000));
+        assertEquals("BMW", car.getModel());
+        assertEquals("make", car.getMake());
+        assertEquals("320i", car.getVersion());
+        assertEquals(new BigDecimal(40000), car.getLeaseRate().getMileAge());
     }
 
     @Test
-    public void shouldDeleteCar() {
+    void shouldDeleteCar() {
         when(repository.findById(1L)).thenReturn(Optional.of(Car.builder().id(1L).build()));
 
         carService.deleteCarById(1L);
