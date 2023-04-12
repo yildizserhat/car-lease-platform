@@ -84,7 +84,6 @@ class CarServiceImplTest {
         carService.deleteCarById(1L);
 
         verify(repository, atLeastOnce()).deleteById(1L);
-
     }
 
 }

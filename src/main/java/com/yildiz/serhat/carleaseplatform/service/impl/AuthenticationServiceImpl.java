@@ -6,8 +6,8 @@ import com.yildiz.serhat.carleaseplatform.controller.request.AuthenticationReque
 import com.yildiz.serhat.carleaseplatform.controller.request.RegisterRequest;
 import com.yildiz.serhat.carleaseplatform.controller.response.AuthenticationResponse;
 import com.yildiz.serhat.carleaseplatform.domain.Role;
-import com.yildiz.serhat.carleaseplatform.domain.entity.Token;
 import com.yildiz.serhat.carleaseplatform.domain.TokenType;
+import com.yildiz.serhat.carleaseplatform.domain.entity.Token;
 import com.yildiz.serhat.carleaseplatform.domain.entity.User;
 import com.yildiz.serhat.carleaseplatform.repository.TokenRepository;
 import com.yildiz.serhat.carleaseplatform.repository.UserRepository;
@@ -15,6 +15,7 @@ import com.yildiz.serhat.carleaseplatform.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         request.email(),
                         request.password()));
         var user = repository.findByEmail(request.email())
-                .orElseThrow();
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Username with email %s not found")));
         var jwtToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);

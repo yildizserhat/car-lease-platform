@@ -58,13 +58,9 @@ class CarControllerTest {
     @MockBean
     private UserRepository userRepository;
 
-    private String token = "";
-
-
     @BeforeEach
     @SneakyThrows
     public void setUp() {
-
         Customer customer = Customer.builder()
                 .id(1L)
                 .email("test@test.com")

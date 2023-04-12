@@ -50,7 +50,6 @@ class CustomerControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-
     @BeforeEach
     public void setUp() {
         objectMapper.setVisibility(FIELD, ANY);
