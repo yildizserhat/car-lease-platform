@@ -82,10 +82,10 @@ public class CarServiceImpl implements CarService {
         Double interestRate = car.getLeaseRate().getInterestRate();
         BigDecimal monthOfYear = new BigDecimal(MONTH_OF_YEAR);
 
-        BigDecimal firstDivision = ((mileAge.divide(monthOfYear, RoundingMode.HALF_UP)).multiply(valueOf(duration))).divide(nettPrice, RoundingMode.HALF_UP).setScale(3, RoundingMode.HALF_UP);
-        BigDecimal secondDivision = nettPrice.divide(valueOf(12), RoundingMode.HALF_UP).multiply(valueOf(interestRate / 100)).setScale(3, RoundingMode.HALF_UP);
+        BigDecimal firstDivision = ((mileAge.divide(monthOfYear, 10, RoundingMode.HALF_UP)).multiply(valueOf(duration))).divide(nettPrice, 10, RoundingMode.HALF_UP);
+        BigDecimal secondDivision = nettPrice.divide(valueOf(12), 10, RoundingMode.HALF_UP).multiply(valueOf(interestRate / 100));
 
-        return firstDivision.add(secondDivision);
+        return firstDivision.add(secondDivision).setScale(3, RoundingMode.HALF_UP);
     }
 
     private Car getCar(Long id) {

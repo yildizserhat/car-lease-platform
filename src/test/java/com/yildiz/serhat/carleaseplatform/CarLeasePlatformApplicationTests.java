@@ -47,7 +47,7 @@ class CarLeasePlatformApplicationTests {
         carService.createCar(request);
 
         Car saved = carRepository.findAll().get(0);
-        assertEquals(new BigDecimal("169.491"), saved.getLeaseRate().getLeaseRateAmount());
+        assertEquals(new BigDecimal("169.49"), saved.getLeaseRate().getLeaseRateAmount());
     }
 
 }

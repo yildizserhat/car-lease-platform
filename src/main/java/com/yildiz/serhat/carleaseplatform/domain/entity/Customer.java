@@ -60,6 +60,7 @@ public class Customer extends BaseEntity {
     private boolean active;
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonIgnore
+    @Builder.Default
     private List<Car> carList = new ArrayList<>();
 
     public static Customer buildCustomerFromRequest(CustomerRequestDTO request) {
