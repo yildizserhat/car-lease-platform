@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -18,15 +19,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceImplTest {
-
-    @InjectMocks
-    private AuthenticationServiceImpl authenticationService;
     @Mock
-    private UserRepository repository;
+    private UserRepository userRepository;
     @Mock
     private TokenRepository tokenRepository;
     @Mock
@@ -36,15 +35,17 @@ class AuthenticationServiceImplTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @InjectMocks
+    private AuthenticationServiceImpl authenticationService;
+
     @Test
-    void shouldEmbedEmailInExceptionMessageWhenUserNotFound() {
-        AuthenticationRequest request = new AuthenticationRequest("john.doe@example.com", "password");
-        when(authenticationManager.authenticate(any())).thenReturn(null);
-        when(repository.findByEmail(request.email())).thenReturn(Optional.empty());
+    void authenticate_whenUserNotFound_throwsUsernameNotFoundException() {
+        AuthenticationRequest request = new AuthenticationRequest("missing@example.com", "password");
+        doNothing().when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
 
-        UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class,
+        UsernameNotFoundException ex = assertThrows(UsernameNotFoundException.class,
                 () -> authenticationService.authenticate(request));
-
-        assertEquals("Username with email john.doe@example.com not found", exception.getMessage());
+        assertEquals("Username with email missing@example.com not found", ex.getMessage());
     }
 }

@@ -36,7 +36,7 @@ public class CustomerController {
     }
 
     @GetMapping
-    @Operation(summary = "Get All Customer")
+    @Operation(summary = "Get All Customers.")
     public ResponseEntity<List<Customer>> getAllCustomers() {
         return new ResponseEntity<>(customerService.getAllCustomers(), HttpStatus.OK);
     }
