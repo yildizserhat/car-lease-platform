@@ -52,7 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         request.email(),
                         request.password()));
         var user = repository.findByEmail(request.email())
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("Username with email %s not found")));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Username with email %s not found", request.email())));
         var jwtToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
