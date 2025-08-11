@@ -46,7 +46,7 @@ public class CarServiceImpl implements CarService {
         Customer customer = customerService.getCustomerById(customerId);
         List<Car> customerCars = repository.findByCustomer(customer);
         if (customerCars.isEmpty()) {
-            String message = String.format("Car Not found for this customer id:%s Not Found", customerId);
+            String message = String.format("Car not found for customer id:%s", customerId);
             log.error(message);
             throw new CarNotFoundException(message);
         }
